@@ -1,0 +1,8 @@
+name "vibe-zmq"
+description "Wrapper on ZMQ sockets with support for VibeD tasks"
+authors "Andre Puel"
+copyright "Copyright © 2016"
+license "mit"
+dependency "vibe-d" version="~>0.7.29"
+dependency "zeromq" version="~>4.1.4"
+targetType "library"
