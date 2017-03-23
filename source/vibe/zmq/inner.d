@@ -7,10 +7,8 @@ struct ZSocketInner {
     static import vibe.core.sync;
     static import core.sync.condition;
     static import core.sync.mutex;
-    //alias Mutex = core.sync.mutex.Mutex;
-    //alias Condition = core.sync.condition.Condition;
-    alias Mutex = vibe.core.sync.TaskMutex;
-    alias Condition = vibe.core.sync.TaskCondition;
+    alias Mutex = core.sync.mutex.Mutex;
+    alias Condition = vibe.core.sync.InterruptibleTaskCondition;
 
     void* socket;
 
