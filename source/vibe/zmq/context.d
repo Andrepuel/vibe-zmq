@@ -1,5 +1,6 @@
 module vibe.zmq.context;
 
+import core.thread : Thread;
 import vibe.zmq.zmq;
 import vibe.zmq.inner;
 import vibe.zmq.rpc;
@@ -24,6 +25,7 @@ public struct ZContext {
     private enum creating_master_addr = "inproc://creating_master";
     private void* ctx;
     void* master_conn;
+    Thread worker_thread;
 
     @disable this(this);
     this(int) {
@@ -40,7 +42,7 @@ public struct ZContext {
         master_conn.zmq_send_t(Type.term, 0);
         Type r = master_conn.zmq_recv_t!Type;
         assert(r == Type.term);
-
+        worker_thread.join();
         zmq_close(master_conn);
 
         zmq_ctx_term(ctx);
@@ -63,12 +65,13 @@ public struct ZContext {
         int rc = ready_conn.zmq_bind(creating_master_addr);
         assert(rc != -1);
 
-        runWorkerTask(&loop, cast(shared(void*))ctx);
+        worker_thread = new Thread(() => loop(ctx));
+        worker_thread.start();
 
         zmq_recv_t!ubyte(ready_conn);
     }
 
-    private static void loop(shared(void*) ctx) {
+    private static void loop(void* ctx) {
         try {
             loop2(cast(void*)ctx);
         } catch(Throwable e) {
